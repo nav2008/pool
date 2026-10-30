@@ -1,0 +1,16 @@
+{
+  "name": "sidespin-pool",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A real-time, two-player pool room. Built for the browser and Render.",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js",
+    "test:browser": "node test/browser.mjs"
+  },
+  "dependencies": { "ws": "^8.18.3" },
+  "devDependencies": { "playwright": "^1.56.1" }
+}

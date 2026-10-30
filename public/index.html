@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111c19">
+  <meta name="description" content="A little friendly competition. Play a beautiful game of pool with a friend, right in your browser.">
+  <title>Sidespin — A little friendly competition.</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-up-right" viewBox="0 0 24 24"><path d="M6 18 18 6M6 6h12v12"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm5 5 6 6m0-6-6 6"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 4 2c-1 .6-1.5 1-1.5 2M12 16v.1"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v4m0 14v4M1 12h4m14 0h4"/></symbol>
+  </svg>
+
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Sidespin home">
+      <span class="brand-mark"><span>8</span></span>
+      <span>side<span class="brand-italic">spin</span><span class="brand-dot">.</span></span>
+    </a>
+    <span class="header-caption">A LITTLE FRIENDLY COMPETITION</span>
+    <nav class="header-actions" aria-label="Game tools">
+      <button class="text-button help-button" type="button"><svg><use href="#i-help"/></svg><span>How to play</span></button>
+      <span class="header-divider"></span>
+      <button id="sound-toggle" class="icon-button" type="button" aria-label="Mute sound" aria-pressed="false"><svg><use href="#i-sound"/></svg></button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="menu-screen" class="screen menu-screen">
+      <div class="menu-layout">
+        <div class="hero">
+          <div class="eyebrow"><span class="little-star">✳</span> THE ONLINE POOL CLUB</div>
+          <h1>Your next<br><em>great game.</em></h1>
+          <p class="hero-description">A proper game of pool. A little friendly rivalry.<br>Pull up a table and make your next shot count.</p>
+          <div class="hero-table-wrap">
+            <div class="hero-table-glow"></div>
+            <canvas id="preview-table" width="1200" height="700" aria-label="Illustration of a green pool table with red and yellow balls"></canvas>
+            <span class="table-caption"><span class="live-dot"></span> THE TABLE IS ALWAYS OPEN</span>
+            <span class="hero-table-number">TABLE<br><b>08</b></span>
+          </div>
+        </div>
+
+        <div class="match-card">
+          <div class="card-topline"><span class="eyebrow">MAKE YOURSELF AT HOME</span><span class="tiny-eight">8</span></div>
+          <h2>Take your shot.</h2>
+          <p class="card-description">One room. Two players. Bragging rights.</p>
+          <form id="room-form">
+            <label for="nickname">YOUR NICKNAME</label>
+            <div class="input-wrap"><svg><use href="#i-person"/></svg><input id="nickname" name="nickname" maxlength="20" autocomplete="nickname" placeholder="What should we call you?" required><span class="input-detail">YOU</span></div>
+            <div class="room-tabs" role="tablist" aria-label="Choose how to play">
+              <button id="create-tab" type="button" role="tab" aria-selected="true" aria-controls="create-panel" tabindex="0">Create a room</button>
+              <button id="join-tab" type="button" role="tab" aria-selected="false" aria-controls="join-panel" tabindex="-1">Join a room</button>
+            </div>
+            <div id="create-panel" role="tabpanel" aria-labelledby="create-tab" class="tab-panel">
+              <div class="private-room-art"><span class="mini-ball red-ball"></span><span class="dashed-line"></span><span class="mini-ball yellow-ball"></span><span class="private-label">A table for two</span></div>
+              <p>Create a private table and send the room code to a friend. We’ll take care of the rack.</p>
+            </div>
+            <div id="join-panel" role="tabpanel" aria-labelledby="join-tab" class="tab-panel" hidden>
+              <label for="room-code">ROOM CODE</label>
+              <input id="room-code" name="code" class="code-input" maxlength="6" placeholder="ABC123" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="code-hint">
+              <p id="code-hint">Got an invite? Enter your friend’s 6-character code.</p>
+            </div>
+            <p id="menu-error" class="form-error" role="alert" hidden></p>
+            <button id="room-submit" class="button button-primary" type="submit"><span>Create a room</span><svg><use href="#i-up-right"/></svg></button>
+          </form>
+          <div class="practice-divider"><span>OR WARM UP FIRST</span></div>
+          <button id="practice-button" class="practice-button" type="button"><span class="practice-icon"><svg><use href="#i-target"/></svg></span><span><b>Practice on your own</b><small>No pressure. Just you and the table.</small></span><svg><use href="#i-arrow"/></svg></button>
+          <div class="card-bottom"><span id="connection-status"><span class="live-dot"></span> Connecting…</span><span>NO SIGN-UP NEEDED</span></div>
+        </div>
+      </div>
+      <div class="menu-features">
+        <div><span class="feature-number">01</span><span><b>Good company, anywhere.</b><small>Share a code. Your friend is one click away.</small></span></div>
+        <div><span class="feature-number">02</span><span><b>Every shot feels right.</b><small>Real ball physics, spin, and a little finesse.</small></span></div>
+        <div><span class="feature-number">03</span><span><b>Keep it friendly. Or don’t.</b><small>Clear your colours. Sink the black. Take the win.</small></span></div>
+      </div>
+      <footer class="menu-footer"><span>BUILT FOR A GOOD TIME.</span><span>RED OR YELLOW. THE REST IS UP TO YOU. <span class="footer-balls"><i></i><i></i></span></span></footer>
+    </section>
+
+    <section id="lobby-screen" class="screen lobby-screen" hidden>
+      <button class="text-button leave-button" type="button"><svg><use href="#i-back"/></svg>Back to the club</button>
+      <div class="lobby-heading"><span class="eyebrow">YOUR PRIVATE TABLE</span><h1>Good company.<br><em>Great competition.</em></h1><p>Share the code, grab a friend, and get ready to break.</p></div>
+      <div class="lobby-card">
+        <div class="invite-bar"><div><span class="eyebrow">ROOM CODE</span><strong id="lobby-code">------</strong></div><button id="copy-invite" class="button button-secondary" type="button"><svg><use href="#i-copy"/></svg><span>Copy invite</span></button></div>
+        <div id="lobby-seats" class="lobby-seats"></div>
+        <p id="lobby-status" class="lobby-status" aria-live="polite">Waiting for your opponent…</p>
+        <button id="ready-button" class="button button-primary" type="button"><span>I’m ready</span><svg><use href="#i-check"/></svg></button>
+        <p class="fine-print">The match begins when both players are ready. Room creator breaks.</p>
+      </div>
+      <p class="lobby-rule"><span class="mini-ball black-ball">8</span> Clear your seven colours. Then sink the black. <button class="link-button help-button" type="button">House rules ↗</button></p>
+    </section>
+
+    <section id="game-screen" class="screen game-screen" hidden>
+      <div class="game-topline"><button class="text-button leave-button" type="button"><svg><use href="#i-back"/></svg><span>Leave table</span></button><div><span id="game-mode">PRIVATE MATCH</span><span class="topline-separator">/</span><button id="game-code" class="text-button" type="button" aria-label="Copy room code">------ <svg><use href="#i-copy"/></svg></button></div><span class="game-live"><span class="live-dot"></span>LIVE TABLE</span></div>
+      <div class="scoreboard">
+        <div id="player-one" class="player-card"></div>
+        <div class="match-status"><span id="turn-label" class="eyebrow">YOUR TURN</span><strong id="turn-title">Make your break.</strong><span id="turn-detail">You’re playing reds</span></div>
+        <div id="player-two" class="player-card opponent"></div>
+      </div>
+
+      <div class="play-area">
+        <aside class="spin-panel" aria-label="Cue ball spin">
+          <div class="control-heading">CUE SPIN<button id="reset-spin" type="button" aria-label="Reset spin" title="Reset spin">↺</button></div>
+          <div class="spin-ball-wrap"><span class="spin-label spin-top">FOLLOW</span><canvas id="spin-control" width="180" height="180" tabindex="0" role="slider" aria-label="Cue ball spin. Arrow keys adjust spin. Home resets." aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Centre strike"></canvas><span class="spin-label spin-bottom">DRAW</span></div>
+          <p id="spin-description">Centre strike</p>
+          <div class="spin-divider"></div>
+          <span class="eyebrow">THE FINESSE</span><p class="spin-tip">Move the dot to add follow, draw, or side spin.</p>
+          <button id="guide-toggle" class="guide-toggle" type="button" aria-pressed="true"><span class="toggle-track"><i></i></span>Aim guide</button>
+        </aside>
+
+        <div class="table-area">
+          <canvas id="game-table" width="1200" height="700" tabindex="0" aria-label="Pool table. Click to aim, drag the cue to rotate. Use arrow keys for fine aim and Space to shoot."></canvas>
+          <div id="table-message" class="table-message" aria-live="polite" hidden></div>
+          <div id="paused-banner" class="paused-banner" role="status" hidden><span class="live-dot"></span><b>Reconnecting to the table…</b><span>Your seat is held for 90 seconds.</span></div>
+          <div class="table-under-label"><span><span class="little-star">✳</span> SIDESPIN BILLIARDS CLUB</span><span>EST. FOR THE LOVE OF THE GAME</span></div>
+        </div>
+
+        <aside class="power-panel" aria-label="Shot power">
+          <div class="control-heading">POWER<span id="power-number">50<span>%</span></span></div>
+          <div id="power-control" class="power-control" role="slider" tabindex="0" aria-label="Shot power. Drag down and release to shoot. Arrow keys adjust, Space shoots." aria-valuemin="1" aria-valuemax="100" aria-valuenow="50" aria-orientation="vertical">
+            <div class="power-ticks"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
+            <div class="power-slot"><div id="power-fill" class="power-fill"></div><div class="power-grain"></div></div>
+            <div id="power-handle" class="power-handle"><i></i><i></i><i></i></div>
+            <span class="power-pull">↓</span>
+          </div>
+          <p id="power-hint">PULL DOWN<br><b>RELEASE TO SHOOT</b></p>
+          <button id="shoot-button" class="button button-small" type="button">Shoot<svg><use href="#i-arrow"/></svg></button>
+        </aside>
+      </div>
+
+      <div class="game-bottom-bar"><p id="shot-feedback" aria-live="polite"><span class="feedback-dot"></span><span>Line it up. Make it count.</span></p><div class="controls-hint"><span><kbd>DRAG</kbd> Aim the cue</span><span><kbd>↓</kbd> Pull for power</span><button class="text-button help-button" type="button"><svg><use href="#i-help"/></svg>Rules</button></div></div>
+      <div id="potted-tray" class="potted-tray" aria-label="Potted balls"><span class="eyebrow">IN THE POCKETS</span><div id="potted-balls"></div><span id="potted-empty">A clean slate. Let’s change that.</span></div>
+    </section>
+  </main>
+
+  <dialog id="rules-dialog" class="modal rules-modal" aria-labelledby="rules-title">
+    <button class="icon-button modal-close" type="button" aria-label="Close rules"><svg><use href="#i-close"/></svg></button>
+    <span class="eyebrow">A QUICK REFRESHER</span><h2 id="rules-title">The house rules.</h2><p class="modal-intro">A simple game. A lifetime to master.</p>
+    <div class="rules-list">
+      <div><span class="rule-number">01</span><div><h3>Know your colours.</h3><p>The room creator takes reds and breaks; the second player takes yellows. Pot one of your colours legally to keep your turn.</p></div></div>
+      <div><span class="rule-number">02</span><div><h3>Line it up. Let it fly.</h3><p>Click the cloth to aim at a point, or drag the wooden cue to rotate it around the white. Pull the power handle down and release to shoot. A longer pull means a harder shot.</p></div></div>
+      <div><span class="rule-number">03</span><div><h3>Add a little finesse.</h3><p>Move the dot on the cue ball: top for follow, bottom for draw, left or right for side spin off the cushions. Arrow keys on the table fine-tune aim; Space shoots.</p></div></div>
+      <div><span class="rule-number">04</span><div><h3>Play a clean shot.</h3><p>Hit your own colour first. Missing every ball, hitting an opponent’s ball or the black first, or potting the white is a foul. After contact, a ball must reach a cushion or a pocket. Your opponent gets ball in hand: click open cloth to place the white anywhere.</p></div></div>
+      <div><span class="rule-number">08</span><div><h3>Save the best for last.</h3><p>Clear all seven of your colours before taking a shot at the black. Pot it legally to win. Pot it early, or foul while potting it, and you lose. Colours stay down after fouls. A rematch swaps colours and the break.</p></div></div>
+    </div>
+    <button id="rules-done" class="button button-primary" type="button"><span>Got it. Let’s play.</span><svg><use href="#i-arrow"/></svg></button>
+  </dialog>
+
+  <dialog id="result-dialog" class="modal result-modal" aria-labelledby="result-title">
+    <div class="result-art"><span class="result-rays"></span><span class="result-eight">8</span></div>
+    <span id="result-eyebrow" class="eyebrow">FRAME COMPLETE</span><h2 id="result-title">Well played.</h2><p id="result-description"></p>
+    <div id="result-score" class="result-score"></div>
+    <button id="rematch-button" class="button button-primary" type="button"><span>One more frame?</span><svg><use href="#i-arrow"/></svg></button>
+    <button id="result-leave" class="text-button" type="button">Back to the club</button>
+  </dialog>
+
+  <dialog id="leave-dialog" class="modal leave-modal" aria-labelledby="leave-title">
+    <span class="eyebrow">HEADING OUT?</span><h2 id="leave-title">Leave the table?</h2><p id="leave-description">Leaving a match awards the frame to your opponent.</p>
+    <button id="confirm-leave" class="button button-primary" type="button"><span>Leave table</span><svg><use href="#i-arrow"/></svg></button><button id="cancel-leave" class="text-button" type="button">Stay for another shot</button>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
