@@ -100,11 +100,14 @@ try {
   await clickCloth(a, 600, 80); await setKeyboardPower(a, 16); await a.locator('#shoot-button').click();
   await waitFor(() => room.moving); await waitFor(() => !room.moving);
   assert.equal(room.ballInHand, guest.id);
+  assert.equal(room.visitsRemaining, 2);
   await b.waitForFunction(() => document.getElementById('table-message').hidden === false);
+  assert.match(await b.locator('#turn-detail').textContent(), /2 visits remaining/);
   assert.equal(await b.locator('#shoot-button').isEnabled(), false);
   await clickCloth(b, 809, 350); await visible(b, '#toast'); assert.equal(room.ballInHand, guest.id);
   await clickCloth(b, 335, 350); await waitFor(() => room.ballInHand === null);
   assert.equal(room.balls[0].pocketed, false);
+  assert.equal(room.visitsRemaining, 2);
   console.log('PASS scratch foul, turn change, ball in hand, illegal and legal placement');
 
   prepareBlack(room, host);

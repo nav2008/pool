@@ -25,7 +25,7 @@ To play together, enter a nickname, create a room, and copy the invite to a frie
 | Shoot at the displayed power | Click **Shoot** | Space on the table |
 | Add spin | Move the red dot on the cue-ball control | Focus the spin ball, then use the arrow keys |
 | Reset spin | Click the reset arrow | Home on the spin ball |
-| Place the white after a foul | Click/tap an unoccupied point on the cloth | — |
+| Place the white after it is potted | Click/tap an unoccupied point on the cloth | — |
 
 The cue pivots around the white; it cannot move the white except during ball in hand. Pulling the power control moves the cue backwards before the striking animation. If a drag is cancelled, it does not shoot. A simple tap on the power control also does not shoot.
 
@@ -34,13 +34,14 @@ Top spin follows the object ball; bottom spin draws back; side spin changes cush
 ## House rules
 
 - The room creator plays reds and breaks. The other player plays yellows. Colours are assigned immediately, with no open-table phase.
-- A legal pot of your colour gives another shot. A legal shot without a pot passes the turn.
+- A legal pot of your colour gives another shot. A legal shot without an own-colour pot ends the current visit; play passes when no visits remain.
 - The first object ball you contact must be your colour, or the black when all seven of your colours were already cleared **before this shot**. Later contacts may involve either colour.
-- Missing every ball, hitting the wrong group first, or potting the white is a foul. After contact, a ball must reach a cushion or a pocket. A foul gives the other player ball in hand anywhere on clear cloth.
-- Potted colours remain down after fouls. Potting only an opponent’s colour passes the turn; it is not itself a foul after a legal first contact.
+- Missing every ball, hitting the wrong group first, or potting the white is a foul. After contact, a ball must reach a cushion or a pocket. A foul cancels all the shooter’s remaining visits and awards the opponent two visits (one extra). Each legal own-colour pot continues the current visit; a legal shot without an own-colour pot consumes one visit. After the second visit ends, play passes normally. Awards do not accumulate.
+- Only potting the white also gives the next player ball in hand anywhere on clear cloth. Placing it does not consume a visit. For other fouls, the white stays where it rests.
+- Potted colours remain down after fouls. Potting only an opponent’s colour ends the current visit; it is not itself a foul after a legal first contact.
 - Pot the black legally after clearing all seven colours to win. Potting it early, on the same shot as your final colour, or while fouling loses the frame.
 - Both players must request a rematch. The rematch swaps colours and the opening break.
-- Practice uses the same red-then-black rules. After a foul you place the white and continue; potting the black early ends the practice frame.
+- Practice uses the same red-then-black rules. After a foul you receive two visits; you may place the white only if it was potted; potting the black early ends the practice frame.
 
 These are the app’s consistent house rules, rather than a complete implementation of any tournament rulebook.
 

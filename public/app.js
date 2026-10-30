@@ -89,6 +89,9 @@ function connect() {
         $('shot-feedback').lastElementChild.textContent = feedback.text;
       }
       for (const event of message.events || []) sound.play(event);
+      if (before?.code === state.code && before.phase === 'playing' && state.phase === 'finished' && state.result?.winner === playerId) {
+        sound.play({ type: 'win' });
+      }
       updateUI();
     } else if (message.type === 'error') {
       clearTimeout(actionTimeout); setBusy(false);
@@ -261,6 +264,7 @@ function updateUI() {
   $('turn-label').textContent = state.phase === 'finished' ? 'FRAME COMPLETE' : state.moving ? 'BALLS IN MOTION' : mine ? 'YOUR TURN' : 'OPPONENT’S TURN';
   $('turn-title').textContent = state.phase === 'finished' ? 'That’s a frame.' : state.moving ? 'Watch it roll.' : state.ballInHand ? mine ? 'Ball in hand.' : 'A fresh angle.' : state.turnNumber === 1 ? mine ? 'Make your break.' : 'The opening break.' : mine ? targetBlack ? 'Bring it home.' : 'Make it count.' : `${current?.name || 'Opponent'} is up.`;
   $('turn-detail').textContent = state.phase === 'finished' ? 'Fancy another?' : state.ballInHand ? mine ? 'Click open cloth to place the white' : 'Your opponent is placing the white' : state.moving ? 'Let the table do the talking' : targetBlack ? 'Only the black stands between you and a win' : mine ? `You’re playing ${me().color === 'red' ? 'reds' : 'yellows'}` : `Playing ${current?.color === 'red' ? 'reds' : 'yellows'}`;
+  if (state.phase === 'playing') $('turn-detail').textContent += ` · ${state.visitsRemaining ?? 1} ${(state.visitsRemaining ?? 1) === 1 ? 'visit' : 'visits'} remaining`;
   const paused = !connected || state.players.some((p) => !p.connected);
   $('paused-banner').hidden = !paused || state.phase === 'finished';
   $('paused-banner').querySelector('b').textContent = !connected ? 'Reconnecting to the table…' : 'Your opponent is reconnecting…';

@@ -14,6 +14,7 @@ export class Match {
     this.phase = 'lobby';
     this.turn = null;
     this.turnNumber = 0;
+    this.visitsRemaining = 1;
     this.ballInHand = null;
     this.moving = false;
     this.shot = null;
@@ -53,7 +54,7 @@ export class Match {
       code: this.code, practice: this.practice, phase: this.phase,
       players: this.players.map(({ id, name, color, ready, connected, rematch }) => ({ id, name, color, ready, connected, rematch })),
       balls: this.balls.map(({ id, color, x, y, vx, vy, wz, pocketed }) => ({ id, color, x: round(x), y: round(y), vx: round(vx), vy: round(vy), wz: round(wz), pocketed })),
-      turn: this.turn, turnNumber: this.turnNumber, ballInHand: this.ballInHand,
+      turn: this.turn, turnNumber: this.turnNumber, visitsRemaining: this.visitsRemaining, ballInHand: this.ballInHand,
       moving: this.moving, aim: this.aim, result: this.result, feed: this.feed,
       shotId: this.shot?.id ?? this.lastShotId ?? 0, frame: ++this.frame,
     };
@@ -77,6 +78,7 @@ export class Match {
     this.phase = 'playing';
     this.turn = this.players[0].id;
     this.turnNumber = 1;
+    this.visitsRemaining = 1;
     this.ballInHand = null;
     this.moving = false;
     this.shot = null;
@@ -157,17 +159,27 @@ export class Match {
       this.result = { winner: outcome.result === 'win' ? player.id : other?.id ?? null, loser: outcome.result === 'loss' ? player.id : other?.id ?? null, reason: outcome.reason };
       this.note(outcome.result === 'win' ? `${player.name} wins the frame.` : `${player.name} potted the black too early.`, outcome.result === 'win' ? 'success' : 'foul');
     } else {
-      if (!outcome.keepTurn) this.turn = this.players.find((p) => p.id !== player.id)?.id ?? player.id;
       this.turnNumber++;
       this.aim = { ...this.aim, side: 0, top: 0 };
+      this.ballInHand = null;
       if (outcome.foul) {
-        this.ballInHand = this.turn;
-        const cue = this.balls.find((b) => b.id === 0);
-        cue.pocketed = true;
-        this.note(`Foul · ${outcome.foul} Ball in hand.`, 'foul');
+        // A foul forfeits every remaining visit; awards never accumulate.
+        this.turn = this.players.find((p) => p.id !== player.id)?.id ?? player.id;
+        this.visitsRemaining = 2;
+        const scratch = this.shot.pocketed.includes(0);
+        if (scratch) {
+          this.ballInHand = this.turn;
+          this.balls.find((b) => b.id === 0).pocketed = true;
+        }
+        this.note(`Foul · ${outcome.foul} Two visits awarded.${scratch ? ' Place the white.' : ' Play the white where it rests.'}`, 'foul');
       } else if (outcome.keepTurn) {
         this.note(`${player.name} potted ${this.shot.pocketed.filter((id) => this.balls.find((b) => b.id === id)?.color === player.color).length} ${player.color}. Shoot again.`, 'success');
+      } else if (this.visitsRemaining > 1) {
+        this.visitsRemaining--;
+        this.note(`${player.name} has one visit remaining. Shoot again.`);
       } else {
+        this.turn = this.players.find((p) => p.id !== player.id)?.id ?? player.id;
+        this.visitsRemaining = 1;
         this.note(`${this.players.find((p) => p.id === this.turn).name} is at the table.`);
       }
     }

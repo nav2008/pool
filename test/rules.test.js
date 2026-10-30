@@ -50,18 +50,21 @@ test('players ready, server enforces turns and prevents duplicate shots', () => 
   assert.throws(() => m.shoot(a, shot), /settle/);
 });
 
-test('foul passes turn, grants ball in hand, blocks shooting and validates placement', () => {
+test('scratch awards two visits and placement does not consume a visit', () => {
   const { m, a, b } = match();
   const shot = { angle: 0, power: .6, side: 0, top: 0 };
   m.shoot(a, shot);
-  m.finishShot(); // firstHit is null: a miss
+  m.shot.pocketed = [0];
+  m.finishShot();
   assert.equal(m.turn, b.id);
   assert.equal(m.ballInHand, b.id);
+  assert.equal(m.visitsRemaining, 2);
   assert.equal(m.balls[0].pocketed, true);
   assert.throws(() => m.shoot(b, shot), /Place/);
   assert.throws(() => m.place(b, 809, 350), /open cloth/);
   m.place(b, 250, 250);
   assert.equal(m.ballInHand, null);
+  assert.equal(m.visitsRemaining, 2);
   assert.equal(m.balls[0].pocketed, false);
   assert.throws(() => m.place(b, 300, 300), /cannot be moved/);
   m.shoot(b, shot);
@@ -78,4 +81,63 @@ test('early black awards opponent the frame; rematch requires both votes and swa
   m.requestRematch(b); assert.equal(m.phase, 'playing');
   assert.equal(m.turn, b.id); assert.equal(b.color, 'red'); assert.equal(a.color, 'yellow');
   assert.ok(m.balls.every((b) => !b.pocketed));
+  assert.equal(m.visitsRemaining, 1);
+});
+
+const shot = { angle: 0, power: .6, side: 0, top: 0 };
+function finish(m, player, overrides = {}) {
+  m.shoot(player, shot);
+  Object.assign(m.shot, { firstHit: player.color === 'red' ? 1 : 9, railAfterContact: true }, overrides);
+  m.finishShot();
+}
+
+test('ordinary fouls award two visits, leave white in place and forbid placement', () => {
+  for (const overrides of [{ firstHit: null }, { firstHit: 9 }, { railAfterContact: false }]) {
+    const { m, a, b } = match();
+    const position = { x: m.balls[0].x, y: m.balls[0].y };
+    finish(m, a, overrides);
+    assert.equal(m.turn, b.id);
+    assert.equal(m.visitsRemaining, 2);
+    assert.equal(m.snapshot().visitsRemaining, 2);
+    assert.equal(m.ballInHand, null);
+    assert.equal(m.balls[0].pocketed, false);
+    assert.deepEqual({ x: m.balls[0].x, y: m.balls[0].y }, position);
+    assert.throws(() => m.place(b, 250, 250), /cannot be moved/);
+    assert.doesNotThrow(() => m.shoot(b, shot));
+  }
+});
+
+test('legal pots preserve extra visit; two non-pot visits pass play normally', () => {
+  const { m, a, b } = match();
+  finish(m, a, { firstHit: null });
+  finish(m, b, { pocketed: [9] });
+  assert.equal(m.turn, b.id); assert.equal(m.visitsRemaining, 2);
+  finish(m, b);
+  assert.equal(m.turn, b.id); assert.equal(m.visitsRemaining, 1);
+  finish(m, b, { pocketed: [10] });
+  assert.equal(m.turn, b.id); assert.equal(m.visitsRemaining, 1);
+  finish(m, b);
+  assert.equal(m.turn, a.id); assert.equal(m.visitsRemaining, 1);
+});
+
+test('fouling cancels all remaining visits and awards exactly two to opponent', () => {
+  const { m, a, b } = match();
+  finish(m, a, { firstHit: null });
+  finish(m, b, { firstHit: 1, pocketed: [9] });
+  assert.equal(m.turn, a.id); assert.equal(m.visitsRemaining, 2);
+  finish(m, a, { firstHit: null });
+  assert.equal(m.turn, b.id); assert.equal(m.visitsRemaining, 2);
+  finish(m, b);
+  finish(m, b);
+  assert.equal(m.turn, a.id); assert.equal(m.visitsRemaining, 1);
+});
+
+test('practice follows the same foul awards and scratch-only placement', () => {
+  const m = new Match('SOLO12', true);
+  const a = m.addPlayer('Alex', { readyState: 1, send() {} });
+  m.ready(a);
+  finish(m, a, { firstHit: null });
+  assert.equal(m.turn, a.id); assert.equal(m.visitsRemaining, 2); assert.equal(m.ballInHand, null);
+  finish(m, a, { pocketed: [0] });
+  assert.equal(m.visitsRemaining, 2); assert.equal(m.ballInHand, a.id);
 });
